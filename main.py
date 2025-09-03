@@ -32,7 +32,7 @@ def hash_password(password: str):
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
-app.include_router(chat_routes.router, prefix="/chat", tags=["Chat"])
+app.include_router(chat_routes.router, prefix="/chats", tags=["Chat With Me"])
 # Register user
 @app.post("/register")
 def register_user(name: str, craft: str, location: str, experience: str, password: str, db: Session = Depends(get_db)):
@@ -64,28 +64,4 @@ def login_user(name: str, password: str, db: Session = Depends(get_db)):
 
 
 # Save chat message
-@app.post("/chat")
-def save_chat(user_id: int, role: str, message: str, db: Session = Depends(get_db)):
-    if role not in ["human", "ai"]:
-        raise HTTPException(status_code=400, detail="Role must be 'human' or 'ai'")
-
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    chat_msg = ChatMessage(user_id=user_id, role=role, message=message)
-    db.add(chat_msg)
-    db.commit()
-    db.refresh(chat_msg)
-    return {"message": "Chat saved", "chat_id": chat_msg.id}
-
-
-# Get chat history for a user
-@app.get("/chat/{user_id}")
-def get_chat_history(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    chats = db.query(ChatMessage).filter(ChatMessage.user_id == user_id).order_by(ChatMessage.timestamp).all()
-    return [{"role": c.role, "message": c.message, "timestamp": c.timestamp} for c in chats]
+ 
