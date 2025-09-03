@@ -6,3 +6,10 @@ pydantic
 python-dotenv
 passlib
 bcrypt
+langchain
+langchain-google-genai
+google-generativeai
+sqlalchemy
+python-dotenv
+fastapi
+uvicorn
