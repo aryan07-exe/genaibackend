@@ -4,6 +4,9 @@ from db import engine, Base, get_db
 from models import User, ChatMessage
 from passlib.context import CryptContext
 from routes import chat_routes 
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 # Initialize FastAPI
 app = FastAPI()
@@ -14,6 +17,13 @@ Base.metadata.create_all(bind=engine)
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or ["http://localhost:3000"] for more security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Utility functions
 def hash_password(password: str):
