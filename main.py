@@ -6,13 +6,14 @@ from passlib.context import CryptContext
 from routes import chat_routes 
 from fastapi.middleware.cors import CORSMiddleware
 from routes import social_assistant
-
+from fastapi.staticfiles import StaticFiles
 
 # Initialize FastAPI
 app = FastAPI()
 
 # Create tables
 Base.metadata.create_all(bind=engine)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(social_assistant.router)
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
