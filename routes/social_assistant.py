@@ -6,6 +6,7 @@ from workflow import social_media_workflow
 from langchain_core.messages import HumanMessage, AIMessage
 import os
 import shutil
+from uuid import uuid4
 
 router = APIRouter()
 
@@ -37,15 +38,21 @@ async def social_media_chat(
     image: UploadFile = File(None),
     db: Session = Depends(get_db),
 ):
-    # Handle image if provided
     image_url = None
     if image:
-        image_path = os.path.join(UPLOAD_DIR, image.filename)
+        # Give each file a unique name to prevent overwrites
+        ext = image.filename.split(".")[-1]
+        file_name = f"{uuid4()}.{ext}"
+        image_path = os.path.join(UPLOAD_DIR, file_name)
+
+        # Save file
         with open(image_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
-        image_url = f"/{UPLOAD_DIR}/{image.filename}"
 
-    # Build content for DB (save both text + image if present)
+        # Public URL (FastAPI serves this)
+        image_url = f"/uploads/{file_name}"
+
+    # Build content
     if query and image_url:
         content = f"[User Input] Text: {query} | Image: {image_url}"
     elif query:
@@ -55,13 +62,13 @@ async def social_media_chat(
     else:
         return {"error": "Either text or image required"}
 
-    # Save user message in DB
+    # Save user input
     user_msg = ChatMessage(user_id=user_id, role="human", message=content)
     db.add(user_msg)
     db.commit()
     db.refresh(user_msg)
 
-    # Get history and add new input
+    # Build history
     history = get_user_chat_history(user_id, db)
     history.append(HumanMessage(content=content))
 
@@ -72,7 +79,7 @@ async def social_media_chat(
     ai_msg_obj = result["messages"][-1]
     response = ai_msg_obj.content
 
-    # Save AI response in DB
+    # Save AI response
     ai_msg = ChatMessage(user_id=user_id, role="ai", message=response)
     db.add(ai_msg)
     db.commit()
@@ -82,5 +89,5 @@ async def social_media_chat(
         "response": response,
         "user_message_id": user_msg.id,
         "ai_message_id": ai_msg.id,
-        "image_url": image_url,  # return uploaded image if present
+        "image_url": image_url,  # accessible public URL
     }
