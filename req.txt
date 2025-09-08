@@ -15,3 +15,5 @@ fastapi
 uvicorn
 langgraph
 python-multipart
+pybase64
+supabase
