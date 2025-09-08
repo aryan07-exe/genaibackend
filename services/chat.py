@@ -1,4 +1,4 @@
-from datetime import datetime0
+from datetime import datetime
 from langchain_google_genai import ChatGoogleGenerativeAI
 from supabase_client import supabase  # import your client
 from uuid import UUID
