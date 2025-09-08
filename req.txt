@@ -17,3 +17,4 @@ langgraph
 python-multipart
 pybase64
 supabase
+beautifulsoup4

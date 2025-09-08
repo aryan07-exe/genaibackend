@@ -33,7 +33,7 @@ def get_user_chat_history(user_id: UUID, db: Session):
 
 @router.post("/assistant/social")
 async def social_media_chat(
-    user_id: int = Form(...),
+    user_id: UUID = Form(...),
     query: str = Form(None),                  # optional text
     image: UploadFile = File(None),           # optional image
     db: Session = Depends(get_db),
