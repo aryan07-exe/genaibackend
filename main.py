@@ -25,7 +25,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.include_router(chat_routes.router, prefix="/chats", tags=["Chat With Me"])
 # Utility functions
 def hash_password(password: str):
     return pwd_context.hash(password)
@@ -33,36 +33,42 @@ def hash_password(password: str):
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
-app.include_router(chat_routes.router, prefix="/chats", tags=["Chat With Me"])
-# Register user
+# ---------------- Register ----------------
 @app.post("/register")
-def register_user(name: str, craft: str, location: str, experience: str, password: str, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.name == name).first()
+def register_user(
+    name: str,
+    email: str,
+    password: str,
+    craft: str = None,
+    experience: str = None,
+    location: str = None,
+    db: Session = Depends(get_db),
+):
+    # Check if email already exists
+    existing_user = db.query(User).filter(User.email == email).first()
     if existing_user:
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(status_code=400, detail="Email already registered")
 
-    hashed_pw = hash_password(password)
+    # Create user
     new_user = User(
         name=name,
+        email=email,
+        password=hash_password(password),
         craft=craft,
-        location=location,
         experience=experience,
-        password=hashed_pw
+        location=location,
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
     return {"message": "User registered successfully", "user_id": new_user.id}
 
-
-# Login user
+# ---------------- Login ----------------
 @app.post("/login")
-def login_user(name: str, password: str, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.name == name).first()
+def login_user(email: str, password: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == email).first()
     if not user or not verify_password(password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
     return {"message": "Login successful", "user_id": user.id}
-
-
-# Save chat message
- 

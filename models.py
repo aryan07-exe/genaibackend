@@ -1,27 +1,26 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
-from sqlalchemy.orm import relationship
-from db import Base
+from sqlalchemy import Column, String, Text, ForeignKey, TIMESTAMP, func, BigInteger
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from db import Base  # Assuming you have db.py with SQLAlchemy Base
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
-    craft = Column(String, nullable=False)   # artisan's craft / profession
-    location = Column(String, nullable=False)
-    experience = Column(String, nullable=False)
+    email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-
-    chats = relationship("ChatMessage", back_populates="user")
+    craft = Column(Text, nullable=True)
+    experience = Column(Text, nullable=True)
+    location = Column(Text, nullable=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
 
 class ChatMessage(Base):
-    __tablename__ = "chat_messages"
+    __tablename__ = "chat"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    role = Column(String, nullable=False)  # "human" or "ai"
-    message = Column(String, nullable=False)
-    timestamp = Column(DateTime(timezone=True), server_default=func.now())
-
-    user = relationship("User", back_populates="chats")
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
+    role = Column(String, nullable=False)  # 'user' or 'assistant'
+    message = Column(Text, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())

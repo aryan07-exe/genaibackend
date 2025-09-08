@@ -2,22 +2,23 @@ from sqlalchemy.orm import Session
 from models import ChatMessage, User
 from datetime import datetime
 from langchain_google_genai import ChatGoogleGenerativeAI  # or whichever LLM wrapper you're using
+from uuid import UUID
 
 # initialize LLM
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.7)
 
-def get_chat_history(db: Session, user_id: int, limit: int = 10):
+def get_chat_history(db: Session, user_id: UUID, limit: int = 10):
     return (
         db.query(ChatMessage)
         .filter_by(user_id=user_id)
-        .order_by(ChatMessage.timestamp.desc())
+        .order_by(ChatMessage.created_at.desc())
         .limit(limit)
         .all()
     )[::-1]  # reverse → oldest first
 
-def save_message(db: Session, user_id: int, role: str, content: str):
+def save_message(db: Session, user_id: UUID, role: str, content: str):
     msg = ChatMessage(
-        user_id=user_id, role=role, message=content, timestamp=datetime.utcnow()
+        user_id=user_id, role=role, message=content
     )
     db.add(msg)
     db.commit()
@@ -37,11 +38,11 @@ def extract_text(response):
     else:
         return str(response.content)
     
-def get_user_profile(db: Session, user_id: int):
+def get_user_profile(db: Session, user_id: UUID):
     """Fetch actual user profile from DB"""
     return db.query(User).filter(User.id == user_id).first()
 
-def chat_with_llm(db: Session, user_id: int, user_message: str):
+def chat_with_llm(db: Session, user_id: UUID, user_message: str):
     # fetch user profile
     user_profile = get_user_profile(db, user_id)
 

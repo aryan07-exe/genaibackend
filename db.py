@@ -1,23 +1,40 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
+import psycopg2
 load_dotenv()
 
+# -----------------------------
+# DATABASE URL
+# -----------------------------
+# Example: postgresql://username:password@host:port/database
+DATABASE_URL = "postgresql://postgres:Aaryan07@db.wgyhqyufvnkmwfiocimk.supabase.co:5432/postgres"
 
-DB_USER = "aryan"
-DB_PASSWORD = "Sahu@123"
-DB_NAME = "genaichat"
-DB_HOST = "34.68.1.193"
+# -----------------------------
+# SQLAlchemy Engine
+# -----------------------------
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={},  # For PostgreSQL, no extra args needed
+    echo=True  # Set True to see SQL logs, False in production
+)
 
-SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://aryan:Sahu&123@34.68.1.193:5432/genaichat"
-
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# -----------------------------
+# Session Local
+# -----------------------------
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# -----------------------------
+# Base class for models
+# -----------------------------
 Base = declarative_base()
 
+
+# -----------------------------
+# Dependency to get DB session
+# -----------------------------
 def get_db():
     db = SessionLocal()
     try:
