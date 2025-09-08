@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from passlib.context import CryptContext
 from routes import chat_routes
 from fastapi.middleware.cors import CORSMiddleware
-from routes import social_assistant
+
 from fastapi.staticfiles import StaticFiles
 from supabase_client import supabase
 
@@ -16,7 +16,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Routers
-app.include_router(social_assistant.router)
 app.include_router(chat_routes.router, prefix="/chats", tags=["Chat With Me"])
 
 # Middleware

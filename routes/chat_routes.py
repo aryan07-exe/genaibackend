@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from db import get_db
+ 
 from services.chat import chat_with_llm
 from uuid import UUID
 router = APIRouter()
