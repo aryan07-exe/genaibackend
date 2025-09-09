@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi.staticfiles import StaticFiles
 from supabase_client import supabase
+from routes.social_routes import router as social_router
+
 
 # Initialize FastAPI
 app = FastAPI()
@@ -16,6 +18,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Routers
+app.include_router(social_router, prefix="/social", tags=["Social Assistant"])
 app.include_router(chat_routes.router, prefix="/chats", tags=["Chat With Me"])
 
 # Middleware
