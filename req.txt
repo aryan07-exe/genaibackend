@@ -19,3 +19,4 @@ pybase64
 supabase
 beautifulsoup4
 datetime
+gtts
