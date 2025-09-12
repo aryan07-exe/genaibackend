@@ -2,26 +2,20 @@ from fastapi import FastAPI, HTTPException
 from passlib.context import CryptContext
 from routes import chat_routes
 from fastapi.middleware.cors import CORSMiddleware
-
 from fastapi.staticfiles import StaticFiles
 from supabase_client import supabase
-from routes.social_routes import router as social_router
+from routes import story_route
+from routes import voice_story
 
-
-# Initialize FastAPI
 app = FastAPI()
 
-# Password hashing
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# Serve uploads
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-
-# Routers
-app.include_router(social_router, prefix="/social", tags=["Social Assistant"])
 app.include_router(chat_routes.router, prefix="/chats", tags=["Chat With Me"])
+app.include_router(story_route.router, prefix="/tools", tags=["Story Generator"])
+app.include_router(voice_story.router, prefix="/voice", tags=["Story Generator"])
 
-# Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Restrict in production
@@ -30,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Utility functions
+
 def hash_password(password: str):
     return pwd_context.hash(password)
 
