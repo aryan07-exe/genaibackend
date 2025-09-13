@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from supabase_client import supabase
 from routes import story_route
 from routes import voice_story
-
+from routes import caption_route
 app = FastAPI()
 
 
@@ -14,8 +14,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(chat_routes.router, prefix="/chats", tags=["Chat With Me"])
 app.include_router(story_route.router, prefix="/tools", tags=["Story Generator"])
-app.include_router(voice_story.router, prefix="/voice", tags=["Story Generator"])
-
+app.include_router(voice_story.router, prefix="/voice", tags=["Story voice Generator"])
+app.include_router(caption_route.router, prefix="/caption", tags=["Caption Generator"])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
