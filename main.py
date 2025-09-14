@@ -7,7 +7,35 @@ from supabase_client import supabase
 from routes import story_route
 from routes import voice_story
 from routes import caption_route
+
+
 app = FastAPI()
+
+VERIFY_TOKEN = "secret_token"  # ye wahi token hai jo FB me dala hai
+
+@app.get("/webhook")
+async def verify_webhook(request: Request):
+    """
+    Facebook webhook verification
+    FB verify request bhejta hai GET me
+    """
+    mode = request.query_params.get("hub.mode")
+    token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
+    
+    if mode == "subscribe" and token == VERIFY_TOKEN:
+        return int(challenge)  # FB expects the challenge number back
+    else:
+        raise HTTPException(status_code=403, detail="Verification failed")
+
+@app.post("/webhook")
+async def receive_webhook(request: Request):
+    """
+    Actual webhook event receive karne ke liye POST endpoint
+    """
+    data = await request.json()
+    print("Webhook data received:", data)
+    return {"status": "received"}
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
