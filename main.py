@@ -7,6 +7,7 @@ from supabase_client import supabase
 from routes import story_route
 from routes import voice_story
 from routes import caption_route
+from fastapi import FastAPI, Request
 
 
 app = FastAPI()
