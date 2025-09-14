@@ -38,6 +38,26 @@ async def receive_webhook(request: Request):
     print("Webhook data received:", data)
     return {"status": "received"}
 
+@app.get("/auth/facebook/callback")
+async def facebook_callback(request: Request):
+    code = request.query_params.get("code")
+    if not code:
+        return {"error": "Missing code parameter"}
+
+    # Exchange code for access token
+    access_token_url = "https://graph.facebook.com/v15.0/oauth/access_token"
+    params = {
+        "client_id": "YOUR_FACEBOOK_CLIENT_ID",
+        "client_secret": "YOUR_FACEBOOK_CLIENT_SECRET",
+        "redirect_uri": "https://yourdomain.com/auth/facebook/callback",
+        "code": code
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(access_token_url, params=params)
+        token_data = response.json()
+
+    return {"message": "Facebook login successful", "token_data": token_data}
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
