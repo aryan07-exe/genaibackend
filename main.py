@@ -8,11 +8,53 @@ from routes import story_route
 from routes import voice_story
 from routes import caption_route
 from fastapi import FastAPI, Request
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 app = FastAPI()
 
 VERIFY_TOKEN = "secret_token"  # ye wahi token hai jo FB me dala hai
+
+
+
+CLIENT_ID = os.getenv("ig_id")  # Instagram App ID
+CLIENT_SECRET = os.getenv("ig_secret")  # Instagram App Secret
+REDIRECT_URI = "https://genaibackend-r809.onrender.com"
+
+@app.get("/instagram/callback")
+async def instagram_callback(request: Request):
+    code = request.query_params.get('code')
+    
+    if not code:
+        return {"error": "Missing code in query parameters."}
+
+    # Exchange code for access token
+    token_url = "https://graph.facebook.com/v15.0/oauth/access_token"
+    params = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "grant_type": "authorization_code",
+        "redirect_uri": REDIRECT_URI,
+        "code": code
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(token_url, params=params)
+        data = response.json()
+
+    if "access_token" not in data:
+        return {"error": "Failed to get access token", "details": data}
+
+    access_token = data["access_token"]
+
+    # TODO: Save access_token securely in your database for the logged-in user
+
+    # Example: Redirect to a frontend page after successful login
+    return RedirectResponse(url=f"https://yourfrontend.com/login-success?access_token={access_token}")
+
+
 
 @app.get("/webhook")
 async def verify_webhook(request: Request):
