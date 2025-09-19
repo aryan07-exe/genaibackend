@@ -1,4 +1,3 @@
-# tools/story_generator.py
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate

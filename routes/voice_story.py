@@ -11,7 +11,6 @@ async def generate_story(
     message: str = Form(...),
 ):
     try:
-        # --- Step 1: Validate user ---
         user_resp = supabase.table("users").select("*").eq("id", user_id).execute()
         if not user_resp.data:
             raise HTTPException(status_code=404, detail="User not found")

@@ -10,7 +10,7 @@ from routes import caption_route
 from fastapi import FastAPI, Request
 import os
 from dotenv import load_dotenv
-
+from routes import product_route
 load_dotenv()
 
 app = FastAPI()
@@ -106,6 +106,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(chat_routes.router, prefix="/chats", tags=["Chat With Me"])
 app.include_router(story_route.router, prefix="/tools", tags=["Story Generator"])
 app.include_router(voice_story.router, prefix="/voice", tags=["Story voice Generator"])
+app.include_router(product_route.router, prefix="/products", tags=["Products"])
 app.include_router(caption_route.router, prefix="/caption", tags=["Caption Generator"])
 app.add_middleware(
     CORSMiddleware,
