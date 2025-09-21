@@ -172,3 +172,8 @@ def login_user(email: str, password: str):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     return {"message": "Login successful", "user_id": user["id"]}
+
+# Ping route (health check)
+@router.get("/ping")
+async def ping():
+    return {"status": "success", "message": "pong 🏓"}

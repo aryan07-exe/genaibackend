@@ -54,3 +54,25 @@ async def create_product_with_image(
 @router.get("/products")
 async def fetch_products():
     return {"products": get_products()}
+
+@router.delete("/products/{product_id}")
+async def delete_product(product_id: str, artisan_id: str = Form(...)):
+    try:
+        # 1️⃣ Fetch product details
+        product = get_product_by_id(product_id)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        # 2️⃣ Verify artisan ownership
+        if product["artisan_id"] != artisan_id:
+            raise HTTPException(status_code=403, detail="You are not allowed to delete this product")
+
+        # 3️⃣ Delete product
+        delete_success = delete_product_by_id(product_id)
+        if not delete_success:
+            raise HTTPException(status_code=500, detail="Failed to delete product")
+
+        return {"status": "success", "message": f"Product {product_id} deleted successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting product: {str(e)}")
