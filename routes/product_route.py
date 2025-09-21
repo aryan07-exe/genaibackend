@@ -1,5 +1,5 @@
-from fastapi import APIRouter, UploadFile, Form, HTTPException
-from services.product_tool import add_product, get_products, supabase
+from fastapi import APIRouter, UploadFile, Form, File, HTTPException
+from services.product_tool import add_product, get_products
 import os
 import cloudinary
 import cloudinary.uploader
@@ -22,12 +22,15 @@ async def create_product_with_image(
     product_name: str = Form(...),
     description: str = Form(...),
     price: float = Form(...),
-    image: UploadFile = Form(...)
+    image: UploadFile = File(...)  # ✅ File instead of Form
 ):
     try:
         # 1️⃣ Upload image to Cloudinary
         upload_result = cloudinary.uploader.upload(image.file)
-        image_url = upload_result["secure_url"]
+        image_url = upload_result.get("secure_url")
+
+        if not image_url:
+            raise HTTPException(status_code=500, detail="Image upload failed")
 
         # 2️⃣ Prepare product data
         product_data = {
@@ -44,7 +47,8 @@ async def create_product_with_image(
         return {"status": "success", "data": added_product}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Error creating product: {str(e)}")
+
 
 # Fetch products route (unchanged)
 @router.get("/products")
