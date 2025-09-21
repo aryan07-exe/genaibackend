@@ -3,7 +3,9 @@ from services.product_tool import add_product, get_products, supabase
 import os
 import cloudinary
 import cloudinary.uploader
+from dotenv import load_dotenv
 
+load_dotenv()
 router = APIRouter()
 
 # Configure Cloudinary
