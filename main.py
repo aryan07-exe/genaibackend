@@ -174,6 +174,7 @@ def login_user(email: str, password: str):
     return {"message": "Login successful", "user_id": user["id"]}
 
 # Ping route (health check)
-@router.get("/ping")
+# ---------------- Ping Route ----------------
+@app.get("/ping")
 async def ping():
     return {"status": "success", "message": "pong 🏓"}
